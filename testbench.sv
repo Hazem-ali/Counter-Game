@@ -10,9 +10,14 @@ module tb(
   
     output clock, control, initial_value, INIT;
     parameter CYCLE = 10;
+    parameter COUNTER_SIZE = 4;
+    typedef bit [COUNTER_SIZE - 1 : 0] counter_t;
+
+
+
     bit INIT;
     reg clock;
-    bit [3:0] initial_value;  // initial value for counter
+    counter_t initial_value;  // initial value for counter
 
     bit [1:0] control;
 
