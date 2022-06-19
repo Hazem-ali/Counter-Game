@@ -6,8 +6,8 @@ module ctr (
 );
   input clock, control, initial_value, INIT;
 
-  parameter COUNTER_SIZE = 4;
-  typedef bit [COUNTER_SIZE - 1 : 0] counter_t;
+  parameter COUNTER_SIZE = 3;
+  typedef bit [COUNTER_SIZE - 1:0] counter_t;
 
 
   // #### Important Signals #### 
@@ -22,10 +22,11 @@ module ctr (
 
   // #### Winner and loser signals & variables ####
   bit LOSER = 1'b0, WINNER = 1'b0, GAMEOVER = 1'b0;
-  counter_t winner_counter = 4'b0, loser_counter = 4'b0;
+  bit [3:0] winner_counter = 0, loser_counter = 0;
   bit [1:0] WHO = 2'b00;
+
+  // signal_holder ensures that WINNER or LOSER are high for only one cycle
   bit signal_holder = 1'b0;
-  // NOTE --> signal_holder ensures that WINNER or LOSER are high for only one cycle
 
 
   // #### Initial Actions ####
@@ -35,14 +36,7 @@ module ctr (
     end else begin
       counter = 0;
     end
-    $display("Counter Initially: %0d", counter);
-
-
-
-    // $display(INIT);
-    // $display(initial_value);
-    // $display(control);
-
+    // $display("Counter Initially: %0d", counter);
 
   end
 
@@ -64,7 +58,7 @@ module ctr (
       endcase
 
     end
-    $display("Counter: %0d", counter);
+    // $display("Counter: %0d", counter);
 
 
     // if it's GAMEOVER, then we reset all counters and start over 
@@ -76,30 +70,32 @@ module ctr (
       WINNER = 1'b0;
       LOSER = 1'b0;
       GAMEOVER = 1'b0;
+      WHO = 2'b00;
 
-      $display("All Reset. Starting Over...!");
+      // $display("All Reset. Starting Over...!");
     end
-
-
 
 
     // Handling WINNER & LOSER signals
     if (signal_holder) begin
       // then we ensured that WINNER or LOSER have completed one cycle
       // Shutting down these signals
+
       signal_holder = 1'b0;
       WINNER = 1'b0;
       LOSER = 1'b0;
 
-      $display("Signal Released!");
+      // $display("Signal Released!");
     end
+
+
     // Here, we check if counter is Zeros or Ones and take action
     if (counter == 0) begin
       LOSER = 1'b1;
       loser_counter += 1'b1;
       signal_holder = 1'b1;
 
-      $display("loser_counter: %0d", loser_counter);
+      // $display("loser_counter: %0d", loser_counter);
 
     end else begin
       if (counter_t'(counter + 1) == 0) begin
@@ -108,39 +104,32 @@ module ctr (
         winner_counter += 1'b1;
         signal_holder = 1'b1;
 
-        $display("winner_counter: %0d", winner_counter);
+        // $display("winner_counter: %0d", winner_counter);
       end
     end
 
 
     // GAMEOVER STATE
-    if (counter_t'(loser_counter + 1) == 0) begin
+    if (loser_counter == 15) begin
       GAMEOVER = 1'b1;
       WHO = 2'b01;
 
-      $display("-------------------");
-      $display("GAMEOVER LOSER");
-      $display(WHO);
-      $display("-------------------");
+      // $display("-------------------");
+      // $display("GAMEOVER LOSER");
+      // $display(WHO);
+      // $display("-------------------");
 
-    end else if (counter_t'(winner_counter + 1) == 0) begin
+    end else if (winner_counter == 15) begin
       GAMEOVER = 1'b1;
       WHO = 2'b10;
 
-      $display("-------------------");
-      $display("GAMEOVER WINNER");
-      $display(WHO);
-      $display("-------------------");
+      // $display("-------------------");
+      // $display("GAMEOVER WINNER");
+      // $display(WHO);
+      // $display("-------------------");
 
     end
 
-
-
-
-
-
-
   end
-
 
 endmodule
